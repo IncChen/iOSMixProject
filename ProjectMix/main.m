@@ -210,33 +210,33 @@ int main(int argc, const char * argv[]) {
             }
             if ([argument isEqualToString:@"-spamCodeOut"]) {
                 outDirString = @"新增垃圾代码";
-//                outDirString = arguments[++i];
-//                if ([fm fileExistsAtPath:outDirString isDirectory:&isDirectory]) {
-//                    if (!isDirectory) {
-//                        printf("%s 已存在但不是文件夹，需要传入一个输出文件夹目录\n", [outDirString UTF8String]);
-//                        return 1;
-//                    }
-//                } else {
-//                    NSError *error = nil;
-//                    if (![fm createDirectoryAtPath:outDirString withIntermediateDirectories:YES attributes:nil error:&error]) {
-//                        printf("创建输出目录失败，请确认 -spamCodeOut 之后接的是一个“输出文件夹目录”参数，错误信息如下：\n传入的输出文件夹目录：%s\n%s\n", [outDirString UTF8String], [error.localizedDescription UTF8String]);
-//                        return 1;
-//                    }
-//                }
-//
-//                i++;
-//                if (i < arguments.count) {
-//                    gOutParameterName = arguments[i];
-//                    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[a-zA-Z]+" options:0 error:nil];
-//                    if ([regex numberOfMatchesInString:gOutParameterName options:0 range:NSMakeRange(0, gOutParameterName.length)] <= 0) {
-//                        printf("缺少垃圾代码参数名，或参数名\"%s\"不合法(需要字母开头)\n", [gOutParameterName UTF8String]);
-//                        return 1;
-//                    }
-//                } else {
-//                    printf("缺少垃圾代码参数名，参数名需要根在输出目录后面\n");
-//                    return 1;
-//                }
-//
+                outDirString = arguments[++i];
+                if ([fm fileExistsAtPath:outDirString isDirectory:&isDirectory]) {
+                    if (!isDirectory) {
+                        printf("%s 已存在但不是文件夹，需要传入一个输出文件夹目录\n", [outDirString UTF8String]);
+                        return 1;
+                    }
+                } else {
+                    NSError *error = nil;
+                    if (![fm createDirectoryAtPath:outDirString withIntermediateDirectories:YES attributes:nil error:&error]) {
+                        printf("创建输出目录失败，请确认 -spamCodeOut 之后接的是一个“输出文件夹目录”参数，错误信息如下：\n传入的输出文件夹目录：%s\n%s\n", [outDirString UTF8String], [error.localizedDescription UTF8String]);
+                        return 1;
+                    }
+                }
+                
+                i++;
+                if (i < arguments.count) {
+                    gOutParameterName = arguments[i];
+                    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[a-zA-Z]+" options:0 error:nil];
+                    if ([regex numberOfMatchesInString:gOutParameterName options:0 range:NSMakeRange(0, gOutParameterName.length)] <= 0) {
+                        printf("缺少垃圾代码参数名，或参数名\"%s\"不合法(需要字母开头)\n", [gOutParameterName UTF8String]);
+                        return 1;
+                    }
+                } else {
+                    printf("缺少垃圾代码参数名，参数名需要根在输出目录后面\n");
+                    return 1;
+                }
+                
                 continue;
             }
             if ([argument isEqualToString:@"-ignoreDirNames"]) {
@@ -273,9 +273,9 @@ int main(int argc, const char * argv[]) {
         }
         if (needModifyAPIName){
             printf("正在修改api名称\n");
-             @autoreleasepool {
+            @autoreleasepool {
                 deleteAllSpamCode(gSourceCodeDir,@"sp_");
-             }
+            }
             printf("修改api名称完成\n");
         }
         if (needDeleteComments) {
@@ -314,13 +314,13 @@ int main(int argc, const char * argv[]) {
                 printf("正在生成垃圾代码\n");
                 addSpamCodeFile(gSourceCodeDir);
             }
-//            recursiveDirectory(gSourceCodeDir, ignoreDirNames, ^(NSString *mFilePath) {
-//
-//            }, ^(NSString *swiftFilePath) {
-//                @autoreleasepool {
-//                    generateSwiftSpamCodeFile(outDirString, swiftFilePath);
-//                }
-//            });
+            //            recursiveDirectory(gSourceCodeDir, ignoreDirNames, ^(NSString *mFilePath) {
+            //
+            //            }, ^(NSString *swiftFilePath) {
+            //                @autoreleasepool {
+            //                    generateSwiftSpamCodeFile(outDirString, swiftFilePath);
+            //                }
+            //            });
             printf("生成垃圾代码完成\n");
         }
         if(newAPiPrefix &&oldAPiPrefix){
@@ -410,6 +410,12 @@ void addSpamCodeFile(NSString *sourceCodeDir){
             continue;
         }
         NSString *fileName = filePath.lastPathComponent;
+        
+        if ([fileName hasPrefix:@"iToast"]) {
+            NSLog(@"不修改iToast文件");
+            continue;
+        }
+        
         ///mm文件先不管
         if ([fileName hasSuffix:@".h"]) {
             NSString *hfileName = fileName.stringByDeletingPathExtension;
@@ -418,21 +424,68 @@ void addSpamCodeFile(NSString *sourceCodeDir){
                 continue;
             }
             
-            NSArray *apiList = @[@"sp_checkUserInfo",@"sp_upload",@"sp_getMediaData",@"sp_didGetInfoSuccess",@"sp_getUserFollowSuccess",@"sp_getLoginState",@"sp_checkNetWorking",@"sp_checkInfo",@"sp_getMediaFailed",@"sp_getUserName",@"sp_checkDefualtSetting",@"sp_didUserInfoFailed",@"sp_getUsersMostLiked",@"sp_getUsersMostLikedSuccess",@"sp_getUsersMostFollowerSuccess"];
+            NSString *app = @"eyel";
+
+            NSArray *methodList = @[@"to",
+                                    @"check",
+                                    @"get",
+                                    @"got",
+                                    @"upload",
+                                    @"do",
+                                    @"did",
+                                    @"show",
+                                    @"dis",
+                                    @"has",
+                                    @"add",
+                                    @"delete",
+                                    @"remove"];
+            NSArray *nameList = @[@"MediaData",
+                                  @"Video",
+                                  @"LoginState",
+                                  @"LoginStateInfo",
+                                  @"UserInfo",
+                                  @"UserInfoSuccess",
+                                  @"UserInfoFailed",
+                                  @"UserFollow",
+                                  @"UserFollowSuccess",
+                                  @"UserFollowFailed",
+                                  @"UsersMostLiked",
+                                  @"UsersMostLikedSuccess",
+                                  @"UsersMostLikedFailed",
+                                  ];
+            
             NSArray *logList = @[@"Get Info Success",@"Get Info Failed",@"Continue",@"Check your Network",@"Get User Succrss"];
             NSArray *param = @[@"string",@"mediaInfo",@"followCount",@"mediaCount",@"isLogin"];
-            int listIndex = arc4random() % 15;
-            int logIndex = arc4random() % 5;
+            
             
             ///概率修改
             NSInteger k = arc4random()%100;
             if(k>kPercent){
                 continue;
             }
-            creatApiToFile(sourceCodeDir, apiList[listIndex], param[logIndex], logList[logIndex], [sourceCodeDir stringByAppendingPathComponent:filePath], YES);
             
-            creatApiToFile(sourceCodeDir, apiList[listIndex], param[logIndex], logList[logIndex], filePath, NO);
-            kSpamCount += 1;
+            int count = 12;
+            if (count > methodList.count) {
+                count = (int)methodList.count-1;
+            }
+            
+            for (int i = 0; i < count; i++) {
+                
+                int methodListIndex = i;
+                NSString *method = methodList[methodListIndex];
+                
+                int nameListIndex = arc4random() % count;
+                NSString *name = nameList[nameListIndex];
+                NSString *api = [NSString stringWithFormat:@"%@_%@%@", app, method, name];
+                
+                int logIndex = arc4random() % 5;
+                
+                creatApiToFile(sourceCodeDir, api, param[logIndex], logList[logIndex], [sourceCodeDir stringByAppendingPathComponent:filePath], YES);
+                
+                creatApiToFile(sourceCodeDir, api, param[logIndex], logList[logIndex], filePath, NO);
+                
+                kSpamCount += 1;
+            }
             
         }
     }
@@ -448,7 +501,7 @@ void creatApiToFile(NSString *sourceCodeDir,NSString *apiName, NSString *paramNa
         if(kSpamCount%4 == 0){
             NSString *s = @"@end";
             NSArray *endArray = [fileContent componentsSeparatedByString:s];
-            NSMutableArray *arrayOfLocation=[NSMutableArray new];
+            NSMutableArray *arrayOfLocation=[[NSMutableArray alloc] init];
             int d=0;
             for (int i=0; i<endArray.count-1; i++) {
                 
@@ -459,6 +512,9 @@ void creatApiToFile(NSString *sourceCodeDir,NSString *apiName, NSString *paramNa
                 [arrayOfLocation addObject:number];
                 
             }
+            if (arrayOfLocation.count == 0) {
+                return;
+            }
             NSNumber *number = arrayOfLocation[arrayOfLocation.count-1];
             NSInteger index = number.integerValue;
             [fileContent replaceCharactersInRange:NSMakeRange(index, 4) withString:@""];
@@ -468,7 +524,7 @@ void creatApiToFile(NSString *sourceCodeDir,NSString *apiName, NSString *paramNa
         else{
             NSString *s = @"@end";
             NSArray *endArray = [fileContent componentsSeparatedByString:s];
-            NSMutableArray *arrayOfLocation=[NSMutableArray new];
+            NSMutableArray *arrayOfLocation=[[NSMutableArray alloc] init];
             int d=0;
             for (int i=0; i<endArray.count-1; i++) {
                 
@@ -478,6 +534,9 @@ void creatApiToFile(NSString *sourceCodeDir,NSString *apiName, NSString *paramNa
                 d+=s.length;
                 [arrayOfLocation addObject:number];
                 
+            }
+            if (arrayOfLocation.count == 0) {
+                return;
             }
             NSNumber *number = arrayOfLocation[arrayOfLocation.count-1];
             NSInteger index = number.integerValue;
@@ -499,7 +558,7 @@ void creatApiToFile(NSString *sourceCodeDir,NSString *apiName, NSString *paramNa
         if(kSpamCount%4 == 0){
             NSString *s = @"@end";
             NSArray *endArray = [mfileContent componentsSeparatedByString:s];
-            NSMutableArray *arrayOfLocation=[NSMutableArray new];
+            NSMutableArray *arrayOfLocation=[[NSMutableArray alloc] init];
             int d=0;
             for (int i=0; i<endArray.count-1; i++) {
                 
@@ -509,6 +568,9 @@ void creatApiToFile(NSString *sourceCodeDir,NSString *apiName, NSString *paramNa
                 d+=s.length;
                 [arrayOfLocation addObject:number];
                 
+            }
+            if (arrayOfLocation.count == 0) {
+                return;
             }
             NSNumber *number = arrayOfLocation[arrayOfLocation.count-1];
             NSInteger index = number.integerValue;
@@ -522,7 +584,7 @@ void creatApiToFile(NSString *sourceCodeDir,NSString *apiName, NSString *paramNa
         else{
             NSString *s = @"@end";
             NSArray *endArray = [mfileContent componentsSeparatedByString:s];
-            NSMutableArray *arrayOfLocation=[NSMutableArray new];
+            NSMutableArray *arrayOfLocation=[[NSMutableArray alloc] init];
             int d=0;
             for (int i=0; i<endArray.count-1; i++) {
                 
@@ -532,6 +594,9 @@ void creatApiToFile(NSString *sourceCodeDir,NSString *apiName, NSString *paramNa
                 d+=s.length;
                 [arrayOfLocation addObject:number];
                 
+            }
+            if (arrayOfLocation.count == 0) {
+                return;
             }
             NSNumber *number = arrayOfLocation[arrayOfLocation.count-1];
             NSInteger index = number.integerValue;
@@ -1009,7 +1074,7 @@ void modifyClassNamePrefix(NSMutableString *projectContent, NSString *sourceCode
         if ([fileName hasPrefix:oldName]) {
             newClassName = [newName stringByAppendingString:[fileName substringFromIndex:oldName.length]];
         } else {
-//            newClassName = [newName stringByAppendingString:fileName];
+            //            newClassName = [newName stringByAppendingString:fileName];
             //不包含前缀的不加新前缀
             newClassName = fileName;
         }
@@ -1059,7 +1124,7 @@ void modifyClassNamePrefix(NSMutableString *projectContent, NSString *sourceCode
                 @autoreleasepool {
                     modifyFilesClassName(gSourceCodeDir, fileName, newClassName);
                 }
-//                continue;
+                //                continue;
             }
         } else if ([fileExtension isEqualToString:@"swift"]) {
             NSString *oldFilePath = [[sourceCodeDir stringByAppendingPathComponent:fileName] stringByAppendingPathExtension:@"swift"];
@@ -1112,9 +1177,9 @@ void changePrefix(NSString *sourceCodeDir, NSArray<NSString *> *ignoreDirNames,N
     for (NSString *filePath in files) {
         NSString *path = [sourceCodeDir stringByAppendingPathComponent:filePath];
         if ([fm fileExistsAtPath:path isDirectory:&isDirectory] && isDirectory) {
-//            if (![ignoreDirNames containsObject:filePath]) {
-//                changePrefix(path, ignoreDirNames, oldName, newName);
-//            }
+            //            if (![ignoreDirNames containsObject:filePath]) {
+            //                changePrefix(path, ignoreDirNames, oldName, newName);
+            //            }
             changePrefix(path, ignoreDirNames, oldName, newName);
             continue;
         }
